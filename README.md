@@ -1,4 +1,4 @@
-# HiFiv11-based ARGB controller
+# HiFive1-based ARGB controller
 
 This is a project to drive ARGB-based computer case lighting from a HiFive1 board. I am using this with a Silverstone SST-RVZ03B-ARGB case, but it will likely work with others. I ditched the built-in 8051-based LED controller board and replaced it with the HiFive1 board, which I had collecting dust anyway.
 
@@ -24,12 +24,15 @@ There seem to be two types of ARGB headers:
 
 - 5V RGB header three(of four)-wire "addressable RGB" (ARGB) light strip
 
+```
     |     |     |     |     |
     | +5V |  D  | N/A | GND |
     |     |     |     |     |
+```
 
 - Three-pin connector "Mizucool Gigabyte VDG header", also just "VDG header":
 
+```
          -       -
     -------------------
     |     |     |     |
@@ -38,6 +41,7 @@ There seem to be two types of ARGB headers:
     -------------------
     |-    -     -    -|
     -------------------
+```
 
 In either case, connect the `D` wire of the LED strip to PIN-3 (`SPI1_MOSI`) on the HiFive1, the `+5V` to a power supply, and the `GND` to the same ground as the HiFive1.
 
@@ -55,4 +59,4 @@ A simple protocol is used at 115200 baud. First, a single-character effect ident
 
 # Credits
 
-- Loosely based on hifive1-neopixel by Curt Brune, but it uses SPI instead of GPIO bit-banging, takes commands through the UART, and uses interrupts to drive timing. Also, the effects have been changed. Not much of the original code remains.
+- Loosely based on hifive1-neopixel by Curt Brune, but it uses SPI instead of GPIO bit-banging, takes commands through the UART, and uses interrupts to drive timing. Also, the effects have been changed. Not much of the original code remains. But thanks a lot for getting me started.
