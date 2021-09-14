@@ -33,6 +33,9 @@
 const uint32_t USEC_PER_FRAME = 20000; /* Fixed frame rate of 50Hz */
 const uint32_t TICKS_PER_FRAME = USEC_PER_FRAME * RTC_FREQ / 1000000;
 
+/** Initial color. */
+const uint8_t INIT_COL[3] = {128, 0, 128};
+
 /**** SPI *******************************************************************/
 
 /** For SPI need:
@@ -512,17 +515,9 @@ static void handle_uart_interrupt()
         switch(cmd) {
         case 'x': // Reset to initial color
             for (int i = 0; i < N_LEDS; i++) {
-                data[i * 3 + 0] = 128;
-                data[i * 3 + 1] = 0;
-                data[i * 3 + 2] = 128;
-            }
-            mode_frame = 0;
-            break;
-        case 'd': // Dark
-            for (int i = 0; i < N_LEDS; i++) {
-                data[i * 3 + 0] = 64;
-                data[i * 3 + 1] = 0;
-                data[i * 3 + 2] = 64;
+                data[i * 3 + 0] = INIT_COL[0];
+                data[i * 3 + 1] = INIT_COL[1];
+                data[i * 3 + 2] = INIT_COL[2];
             }
             mode_frame = 0;
             break;
@@ -630,11 +625,11 @@ int main(void)
     pulse_init(&pulse);
     dot2_init(&dot2);
 
-    // Initial purple color.
+    // Initial color.
     for (int i = 0; i < N_LEDS; i++) {
-        data[i * 3 + 0] = 128;
-        data[i * 3 + 1] = 0;
-        data[i * 3 + 2] = 128;
+        data[i * 3 + 0] = INIT_COL[0];
+        data[i * 3 + 1] = INIT_COL[1];
+        data[i * 3 + 2] = INIT_COL[2];
     }
     post_frame = true;
 
