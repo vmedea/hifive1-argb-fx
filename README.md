@@ -57,6 +57,21 @@ Connect your HiFive1 to the host computer in the usual way and type `make upload
 
 A simple protocol is used at 115200 baud. First, a single-character effect identifier is sent from the host, the device replies with `C`, then the host sends optional parameters. After the parameters are received the effect starts the next frame. See `handle_uart_interrupt()`.
 
+## Available effects
+
+- `x` Reset to initial color (no parameters)
+- `o` Turn all leds off (no parameters)
+- `f` Manual color setting (follow with 3 * `N_LEDS` bytes for R, G, B for each led)
+- `s` Simplex noise (a kind of lava lamp effect).
+  - First byte is mode-
+    - `0` FULLRGB: full RGB noise
+    - `1` COLOR1: interpolate between black and one color
+    - `2` COLOR2: interpolate between black and two colors (using two noise channels)
+  - Then 2 times 3 bytes for RGB color parameters. These always need to be provided even for the modes that use no, or only one, color.
+- `r` Rainbow (no parameters at this time)
+- `p` Pulse all leds (no parameters at this time)
+- `2` One or two moving dots (no parameters at this time)
+
 # Credits
 
 - Loosely based on hifive1-neopixel by Curt Brune, but it uses SPI instead of GPIO bit-banging, takes commands through the UART, and uses interrupts to drive timing. Also, the effects have been changed. Not much of the original code remains. But thanks a lot for getting me started.
