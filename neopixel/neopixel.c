@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "encoding.h"
 #include "platform.h"
@@ -211,8 +212,7 @@ struct simplex_state {
     osp_fixp yval;
 
     uint8_t mode;
-    uint8_t col1[3];
-    uint8_t col2[3];
+    uint8_t col[N_LEDS][3];
 };
 
 void simplex_init(struct simplex_state *self)
@@ -225,13 +225,8 @@ void simplex_init(struct simplex_state *self)
     self->xscale = OSP_FCONST(0.3 * 0.5);
     self->yscale = OSP_FCONST(0.04 * 0.3 * 0.7);
 
-    self->col1[0] = 150;
-    self->col1[1] = 0;
-    self->col1[2] = 255;
-
-    self->col2[0] = 255;
-    self->col2[1] = 0;
-    self->col2[2] = 222;
+    self->mode = 0;
+    memset(&self->col[0][0], 0, sizeof(self->col));
 
     self->yval = 0;
 }
@@ -256,7 +251,7 @@ void simplex_frame(struct simplex_state *self, uint8_t *data, bool *post_frame)
         for (int x = 0; x < N_LEDS; ++x) {
             osp_fixp val = rescale(opensimplex2d_noise(&self->s[0], xval, self->yval));
             for (int i = 0; i < 3; ++i) {
-                data[x * 3 + i] = GAMMA_COR(self->col1[i] * val);
+                data[x * 3 + i] = GAMMA_COR(self->col[0][i] * val);
             }
             xval += self->xscale;
         }
@@ -266,7 +261,16 @@ void simplex_frame(struct simplex_state *self, uint8_t *data, bool *post_frame)
             osp_fixp val = rescale(opensimplex2d_noise(&self->s[0], xval, self->yval));
             osp_fixp tint = rescale(opensimplex2d_noise(&self->s[1], xval, self->yval));
             for (int i = 0; i < 3; ++i) {
-                data[x * 3 + i] = GAMMA_COR(OSP_MULT(self->col1[i] * (OSP_FIXED(1) - tint) + (self->col2[i] * tint), val));
+                data[x * 3 + i] = GAMMA_COR(OSP_MULT(self->col[0][i] * (OSP_FIXED(1) - tint) + (self->col[1][i] * tint), val));
+            }
+            xval += self->xscale;
+        }
+        break;
+    case 3: // COLORN
+        for (int x = 0; x < N_LEDS; ++x) {
+            osp_fixp val = rescale(opensimplex2d_noise(&self->s[0], xval, self->yval));
+            for (int i = 0; i < 3; ++i) {
+                data[x * 3 + i] = GAMMA_COR(self->col[x][i] * val);
             }
             xval += self->xscale;
         }
@@ -537,8 +541,7 @@ static void handle_uart_interrupt()
             // TODO: could allocate the effect state here, there's no real reason
             // to keep it around in other modes. Or share a single block between modes.
             uart_recv(&simplex.mode, 1);
-            uart_recv(simplex.col1, 3);
-            uart_recv(simplex.col2, 3);
+            uart_recv(&simplex.col[0][0], N_LEDS * 3);
             mode_frame = (mode_frame_func)&simplex_frame;
             mode_state = (void*)&simplex;
             break;

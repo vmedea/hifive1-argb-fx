@@ -67,7 +67,8 @@ A simple protocol is used at 115200 baud. First, a single-character effect ident
     - `0` FULLRGB: full RGB noise
     - `1` COLOR1: interpolate between black and one color
     - `2` COLOR2: interpolate between black and two colors (using two noise channels)
-  - Then 2 times 3 bytes for RGB color parameters. These always need to be provided even for the modes that use no, or only one, color.
+    - `3` COLORN: interpolate between black and white, multiplied with a color per led
+  - Then `N_LEDS` times 3 bytes for RGB color parameters. These always need to be provided even for the modes that use no, or only one, color.
 - `r` Rainbow (no parameters at this time)
 - `p` Pulse all leds (no parameters at this time)
 - `2` One or two moving dots (no parameters at this time)
