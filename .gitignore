@@ -5,3 +5,4 @@
 neopixel/*.o
 neopixel/*.a
 neopixel/neopixel
+__pycache__

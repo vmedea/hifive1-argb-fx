@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+import math
+import sys
+import time
+from pyutil.caseleds import Leds
+
+setting = sys.argv[1]
+
+#set_leds([(255, 0, 255), (0, 0, 0), (0, 0, 0), (0, 0, 0)] * 4)
+#set_leds([(0, 0, 0)] * 16)
+colors = [(0, 0, 0)] * 16
+
+def interp(a, b, c):
+    return (a[0] * (1.0 - c) + b[0] * c,
+            a[1] * (1.0 - c) + b[1] * c,
+            a[2] * (1.0 - c) + b[2] * c)
+
+def mult(c, a):
+    return (c[0] * a, c[1] * a, c[2] * a)
+
+def clamp256(x):
+    return int(max(min(x, 255.0), 0.0))
+
+leds = Leds()
+if setting == 'purple1':
+    for x in range(8):
+        v = math.pow((x + 1) / 8.0, 1.5)
+        colors[x] = (int(v * 78), 0, int(v * 255))
+        #colors[x] = (int(v * 255), int(v * 78), 0)
+        colors[15-x] = (int(v * 78), 0, int(v * 125))
+    for x in range(16):
+        if (x % 4) < 2:
+            colors[x] = (0, 0, 0)
+
+if setting == 'red1':
+    for x in range(8):
+        v = math.pow((x + 1) / 8.0, 1.5)
+        colors[x*2] = (int(v * 255), 0, 0)
+
+if setting == 'red2':
+    for x in range(4):
+        v = math.pow((x + 1) / 4.0, 1.5)
+        col = interp((255, 0, 0), (255, 128, 0), x / 3.0)
+        colors[x*4] = mult(col, v)
+
+if setting == 'redyellow1':
+    for x in range(16):
+        colors[x] = interp((255, 0, 0), (255, 255, 0), x / 15.0)
+
+if setting == 'redyellow2':
+    for x in range(16):
+        if (x % 4) < 2:
+            colors[x] = (255, 12, 0)
+        else:
+            colors[x] = (255, 128, 0)
+
+if setting == 'redyellow3':
+    for x in range(16):
+        if x < 6 or x > 10:
+            colors[x] = interp((255, 0, 0), (255, 255, 0), x / 15.0)
+
+if setting == 'purple2': # "an exponential intensity ramp will be seen as a linear ramp"
+    l = math.pow(2.0, 7.5)
+    for x in range(16):
+        colors[x] = interp((0, 0, 0), (128, 0, 255), math.pow(l, (7.5 - abs(x - 7)) / 7.5 - 1))
+
+if setting == 'purple3': # gamma correction (wider)
+    l = 2.2
+    for x in range(16):
+        colors[x] = interp((0, 0, 0), (128, 0, 255), math.pow((7.5 - abs(x - 7.5)) / 7.5, l))
+
+if setting == 'purpledot':
+    colors[7] = (128, 0, 255)
+
+if setting == 'purplesides':
+    colors[0] = (128, 0, 255)
+    colors[15] = (128, 0, 255)
+
+if setting == 'greensides':
+    colors[0] = (0, 255, 0)
+    colors[15] = (0, 255, 0)
+
+if setting == 'bluesides':
+    colors[0] = (30, 30, 255)
+    colors[15] = (30, 30, 255)
+
+if setting == 'greenslime1': # slime plasme tube
+    for x in range(16):
+        colors[x] = interp((0, 255, 0), (128, 128, 0), x / 15.0)
+    # how to make it sort-of fluid plasma effect in 1D?
+    # soft transition
+
+if setting == 'purpleflicker':
+    import random
+    val = 0.0
+    t = 0
+    target = 0.0
+    while True:
+        val = target * 0.15 + val * (1 - 0.15)
+        col = interp((0, 0, 0), (128, 0, 255), val)
+        colors[0] = col
+        colors[15] = col
+        colors = [(clamp256(c[0]), clamp256(c[1]), clamp256(c[2])) for c in colors]
+        leds.set(colors)
+        t += 1
+        if t == 10:
+            target = random.random()
+            t = 0
+
+if setting == 'progress':
+    value = int(sys.argv[2]) / 99 * 15
+    for x in range(16):
+        if x < value:
+            colors[x] = (0, 255, 0)
+        else:
+            colors[x] = (25, 25, 25)
+
+if setting == 'purplebounce': # dot bounce
+    while True:
+        for value in range(31):
+            if value >= 16:
+                i = 30 - value
+            else:
+                i = value
+            for x in range(16):
+                if x == i:
+                    colors[x] = (128, 0, 255)
+                else:
+                    colors[x] = (15, 15, 15)
+            colors = [(clamp256(c[0]), clamp256(c[1]), clamp256(c[2])) for c in colors]
+            leds.set(colors)
+    sys.exit(0) # exit after animation
+
+if setting == 'test1': # binary-ish increase, purple
+    val = 0
+    while True:
+        for i in range(16):
+            colors[i] = (((val >> i) & 0xff) >> 1, 0, (val >> i) & 0xff)
+        leds.set(colors)
+        val += 1
+    sys.exit(0) # exit after animation
+
+if setting == 'test2': # hard binary count, red
+    val = 0
+    while True:
+        for i in range(16):
+            colors[i] = [(0, 0, 0), (255, 0, 0)][(val >> (i + 4))&1]
+        leds.set(colors)
+        val += 1
+    sys.exit(0) # exit after animation
+
+colors = [(clamp256(c[0]), clamp256(c[1]), clamp256(c[2])) for c in colors]
+print(colors)
+leds.set(colors)
+
+

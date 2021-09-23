@@ -540,6 +540,9 @@ static void handle_uart_interrupt()
         case 's': // Simplex plasma
             // TODO: could allocate the effect state here, there's no real reason
             // to keep it around in other modes. Or share a single block between modes.
+            // On the other hand it would be nice to be able to compose (mix)
+            // multiple effects in some cases, in which case they do need to be able
+            // to run in parallel.
             uart_recv(&simplex.mode, 1);
             uart_recv(&simplex.col[0][0], N_LEDS * 3);
             mode_frame = (mode_frame_func)&simplex_frame;

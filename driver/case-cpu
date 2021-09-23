@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+'''
+Display CPU load on caseleds (updated once per second).
+'''
+import math
+import os
+import sys
+import time
+
+import psutil
+from pyutil.caseleds import Leds, SimplexMode
+
+def led_progress_aa(seq, val, col1, col2):
+    '''
+    Antialiased progress bar.
+    '''
+    val = val * len(seq)
+    n = math.floor(val)
+
+    ival2 = val - n
+    ival1 = 1.0 - ival2
+
+    for i in range(0, n):
+        for x in range(3):
+            seq[i][x] = col1[x]
+    if 0 <= n < len(seq):
+        for x in range(3):
+            seq[n][x] = ival2 * col1[x] + ival1 * col2[x]
+    for i in range(n + 1, len(seq)):
+        for x in range(3):
+            seq[i][x] = col2[x]
+
+leds = Leds()
+
+while True:
+    seq = [[0, 0, 0] for x in range(leds.count)]
+    load = psutil.cpu_percent()
+    led_progress_aa(seq, load / 100.0, [255, 0, 0], [0, 255, 0])
+
+    leds.simplex(SimplexMode.COLORN, seq)
+    time.sleep(1)

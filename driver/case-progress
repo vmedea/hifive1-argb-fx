@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+'''
+Extract progress % from (c)make output and update case led.
+'''
+import os
+import re
+import subprocess
+import sys
+
+from pyutil.caseleds import Leds
+
+PROGRESS_RE = re.compile('\[ *([0-9]+)%\]')
+
+def set_progress(leds, percent):
+    value = int(percent) / 99 * 15
+    colors = [(0, 0, 0)] * 16
+    for x in range(16):
+        if x < value:
+            colors[x] = (0, 255, 0)
+        else:
+            colors[x] = (25, 25, 25)
+    leds.set(colors)
+
+leds = Leds()
+os.putenv('CLICOLOR_FORCE', '1') # force cmake to output color, even though we're piping
+p = subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, encoding='UTF8')
+
+for line in p.stdout:
+    m = PROGRESS_RE.match(line)
+    if m:
+        set_progress(leds, m.group(1))
+    sys.stdout.write(line)
+
+p.wait()
+
+if p.returncode != 0:
+    # turn red in case of exit w/ error
+    leds.set([(255, 0, 0)] * 16)
+else:
+    # make sure to be 100% green in case of succesful exit
+    set_progress(leds, 100)
+
+exit(p.returncode)
