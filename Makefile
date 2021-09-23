@@ -15,7 +15,7 @@ srcdir := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 srcdir := $(srcdir:/=)
 
 DEFAULT_BOARD := freedom-e300-hifive1
-DEFAULT_PROGRAM := neopixel
+DEFAULT_PROGRAM := firmware
 
 BOARD ?= $(DEFAULT_BOARD)
 PROGRAM ?= $(DEFAULT_PROGRAM)

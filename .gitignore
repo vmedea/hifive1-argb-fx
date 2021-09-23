@@ -2,7 +2,7 @@
 /cscope.out.in
 /cscope.out.po
 /openocd_upload.log
-neopixel/*.o
-neopixel/*.a
-neopixel/neopixel
+firmware/*.o
+firmware/*.a
+firmware/argb-fx
 __pycache__

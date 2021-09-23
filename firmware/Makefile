@@ -3,8 +3,8 @@
 # All rights reserved.
 #
 
-TARGET = neopixel
-C_SRCS += neopixel.c init.c opensimplex2d.c
+TARGET = argb-fx
+C_SRCS += argb-fx.c init.c opensimplex2d.c
 C_SRCS += $(BSP_BASE)/drivers/plic/plic_driver.c
 
 C_OBJS = $(C_SRCS:.c=.o)

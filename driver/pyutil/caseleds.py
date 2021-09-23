@@ -1,6 +1,6 @@
 '''
 Set caseleds led strip through 'f' (frame) command.
-A hifive1 running my version of hifive1-neopixel must be connected through USB.
+A hifive1 running hifive1-argb-fxl must be connected through USB.
 '''
 import math
 import serial
