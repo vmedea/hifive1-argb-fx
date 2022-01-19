@@ -277,6 +277,7 @@ void simplex_frame(struct simplex_state *self, uint8_t *data, bool *post_frame)
         break;
     }
     self->yval += self->yscale;
+    self->yval &= OSP_FIXED(256) - 1;
 
     *post_frame = true;
 }
