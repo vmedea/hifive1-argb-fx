@@ -35,7 +35,7 @@ leds = Leds()
 while True:
     seq = [[0, 0, 0] for x in range(leds.count)]
     load = psutil.cpu_percent()
-    led_progress_aa(seq, load / 100.0, [255, 0, 0], [0, 255, 0])
+    led_progress_aa(seq, load / 100.0, [255, 128, 0], [200, 0, 255])
 
     leds.simplex(SimplexMode.COLORN, seq)
     time.sleep(1)

@@ -26,7 +26,7 @@ class Leds:
         self.ser = serial.Serial(port=UART, baudrate=baudrate)
 
     def set(self, colors):
-        assert(len(colors) == 16)
+        assert(len(colors) == self.count)
         with DelayedKeyboardInterrupt(): # try hard to avoid sending a partial packet, while still honoring Ctrl-C
             self.ser.write(b'f')
             self.ser.read(1) # wait for confirmation of 'f' before sending the rest of the data
